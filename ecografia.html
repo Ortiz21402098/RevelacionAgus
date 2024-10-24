@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecografía del Bebé</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(10px, 3vw, 20px);
+            overflow-x: hidden;
+        }
+
+        /* Optimización de animaciones para móviles */
+        @media (prefers-reduced-motion: reduce) {
+            .confetti, .bubble, .sparkle, .heartbeat {
+                animation: none !important;
+            }
+        }
+
+        /* Estilos para el confeti optimizados */
+        .confetti {
+            position: fixed;
+            width: clamp(5px, 1vw, 10px);
+            height: clamp(5px, 1vw, 10px);
+            background: var(--color);
+            opacity: 0.7;
+            animation: confetti-fall var(--duration) ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        /* Estilos para las burbujas optimizados */
+        .bubble {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            animation: bubble-float var(--duration) ease-in infinite;
+            z-index: 1;
+            width: clamp(5px, 2vw, 20px);
+            height: clamp(5px, 2vw, 20px);
+        }
+
+        @keyframes bubble-float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+        }
+
+        /* Estilos para los destellos optimizados */
+        .sparkle {
+            position: fixed;
+            width: clamp(2px, 0.5vw, 4px);
+            height: clamp(2px, 0.5vw, 4px);
+            background: white;
+            border-radius: 50%;
+            animation: sparkle var(--duration) ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: clamp(10px, 3vw, 20px);
+            padding: clamp(15px, 4vw, 40px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 95%;
+            position: relative;
+            z-index: 2;
+            margin: 10px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: clamp(10px, 2vw, 20px);
+            left: clamp(10px, 2vw, 20px);
+            text-decoration: none;
+            color: #555;
+            padding: clamp(8px, 2vw, 10px) clamp(15px, 3vw, 20px);
+            border-radius: 25px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            font-size: clamp(0.8em, 2.5vw, 0.9em);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 3;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin: clamp(30px, 5vw, 40px) 0 clamp(20px, 4vw, 30px);
+            font-size: clamp(1.5em, 4vw, 2.2em);
+            position: relative;
+            padding: 0 30px;
+        }
+
+        h2::after {
+            content: '👶';
+            position: absolute;
+            margin-left: 10px;
+            font-size: clamp(1em, 3vw, 1.2em);
+            animation: wave 2s infinite;
+        }
+
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+            gap: clamp(15px, 3vw, 30px);
+            margin-top: clamp(15px, 3vw, 30px);
+        }
+
+        .image-section, .video-section {
+            background: white;
+            padding: clamp(10px, 3vw, 20px);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .media-title {
+            color: #34495e;
+            margin-bottom: clamp(10px, 2vw, 15px);
+            font-size: clamp(1em, 3vw, 1.2em);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .image-container {
+            width: 100%;
+            height: clamp(200px, 40vw, 300px);
+            overflow: hidden;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--color);
+            animation: confetti-fall 3s ease-in-out infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        .modal {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+
+        .video-container {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+            padding-top: 56.25%;
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .date-info {
+            text-align: center;
+            margin-top: clamp(20px, 4vw, 30px);
+            padding: clamp(10px, 2vw, 15px);
+            background: linear-gradient(to right, #e3f2fd, #f3e5f5);
+            border-radius: 10px;
+            font-size: clamp(0.9em, 2.5vw, 1.1em);
+            color: #2c3e50;
+        }
+
+        .heartbeat {
+            position: absolute;
+            width: clamp(50px, 10vw, 100px);
+            height: clamp(50px, 10vw, 100px);
+            background: rgba(255, 182, 193, 0.2);
+            border-radius: 50%;
+            animation: heartbeat 1.5s ease-in-out infinite;
+            z-index: -1;
+            display: none;
+        }
+
+        /* Media queries mejorados */
+        @media (max-width: 480px) {
+            .modal {
+                margin: 5px;
+                padding: 15px;
+            }
+
+            .back-button {
+                padding: 8px 12px;
+                font-size: 0.8em;
+            }
+
+            .content-wrapper {
+                gap: 15px;
+            }
+
+            .video-container {
+                padding-top: 75%; /* Aspecto más cuadrado para móviles */
+            }
+        }
+
+        @media (min-width: 768px) {
+            .heartbeat {
+                display: block;
+            }
+
+            @media (hover: hover) {
+                .image-section:hover, .video-section:hover {
+                    transform: translateY(-5px);
+                }
+
+                .image-container:hover img {
+                    transform: scale(1.05);
+                }
+
+                .back-button:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+                }
+            }
+        }
+
+        /* Soporte para modo oscuro */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a237e, #4a148c);
+            }
+
+            .modal {
+                background: rgba(30, 30, 30, 0.95);
+            }
+
+            h2, .media-title, .date-info {
+                color: #fff;
+            }
+
+            .image-section, .video-section {
+                background: #2c2c2c;
+            }
+
+            .back-button {
+                background: #333;
+                color: #fff;
+            }
+
+            .date-info {
+                background: linear-gradient(to right, #1a237e, #4a148c);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="heartbeat"></div>
+    <div class="modal">
+        <a href="index.html" class="back-button">← Volver</a>
+        
+        <h2>Ecografía del Bebé</h2>
+
+        <div class="content-wrapper">
+            <div class="image-section">
+                <h3 class="media-title">Imagen de la Ecografía</h3>
+                <div class="image-container">
+                    <img src="eco.jpeg" alt="Ecografía del bebé" loading="lazy">
+                </div>
+            </div>
+
+            <div class="video-section">
+                <h3 class="media-title">Video de la Ecografía</h3>
+                <div class="video-container">
+                    <video controls preload="none" poster="eco.jpeg">
+                        <source src="VID-20241023-WA0007.mp4" type="video/mp4">
+                        Tu navegador no soporta el elemento de video.
+                    </video>
+                    <div class="video-overlay"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="date-info">
+            <p>📅 Fecha de la ecografía: 10 de Octubre 2024</p>
+        </div>
+    </div>
+
+    <div class="heartbeat" style="top: 10%; left: 10%"></div>
+    <div class="heartbeat" style="top: 70%; right: 10%"></div>
+
+    <script>
+        // Optimización de efectos visuales para móviles
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function createElements(className, count) {
+            // Reducir la cantidad de elementos en móviles
+            const actualCount = isMobile ? Math.floor(count / 2) : count;
+            
+            const elements = [];
+            const colors = ['#ff69b4', '#4fc3f7', '#fff'];
+            
+            for(let i = 0; i < actualCount; i++) {
+                const element = document.createElement('div');
+                element.className = className;
+                element.style.left = Math.random() * 100 + 'vw';
+                element.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                
+                if(className === 'confetti') {
+                    element.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+                }
+                
+                elements.push(element);
+            }
+            
+            return elements;
+        }
+
+        function initializeEffects() {
+            if (reducedMotion) return; // No crear efectos si se prefiere reducir el movimiento
+            
+            const effects = [
+                createElements('confetti', 50),
+                createElements('bubble', 20),
+                createElements('sparkle', 30)
+            ].flat();
+            
+            effects.forEach(element => document.body.appendChild(element));
+            
+            // Limpiar y recrear efectos
+            setTimeout(() => {
+                effects.forEach(element => element.remove());
+                initializeEffects();
+            }, 5000);
+        }
+
+        // Iniciar efectos solo cuando la página esté completamente cargada
+        window.addEventListener('load', initializeEffects);
+
+        // Crear confeti
+        function createConfetti() {
+            const colors = ['#ff69b4', '#4fc3f7', '#fff'];
+            for(let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+                document.body.appendChild(confetti);
+            }
+        }
+
+        // Crear corazones flotantes
+        function createHearts() {
+            const positions = [[10, 20], [85, 15], [15, 85], [80, 80]];
+            positions.forEach(([x, y]) => {
+                const heart = document.createElement('div');
+                heart.className = 'hearts';
+                heart.innerHTML = '♥';
+                heart.style.left = x + '%';
+                heart.style.top = y + '%';
+                heart.style.animationDelay = Math.random() * 2 + 's';
+                document.body.appendChild(heart);
+            });
+        }
+
+        window.onload = () => {
+            createConfetti();
+            createHearts();
+        }
+    </script>
+</body>
+</html>
